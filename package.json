@@ -1,15 +1,22 @@
 {
-  "name": "triageforge",
-  "version": "0.1.0",
-  "private": true,
-  "description": "AI-powered GitHub issue triage platform",
-  "license": "UNLICENSED",
-  "engines": {
-    "node": "24.x",
-    "pnpm": "11.20.0"
-  },
-  "packageManager": "pnpm@11.20.0",
-  "scripts": {
-    "workspace:list": "pnpm --recursive list --depth -1"
-  }
+    "name":  "triageforge",
+    "version":  "0.1.0",
+    "private":  true,
+    "description":  "AI-powered GitHub issue triage platform",
+    "license":  "UNLICENSED",
+    "engines":  {
+                    "node":  "24.x",
+                    "pnpm":  "11.20.0"
+                },
+    "packageManager":  "pnpm@11.20.0",
+    "scripts":  {
+                    "workspace:list":  "pnpm --recursive list --depth -1",
+                    "api:dev":  "pnpm --filter @triageforge/api dev",
+                    "api:build":  "pnpm --filter @triageforge/api build",
+                    "api:typecheck":  "pnpm --filter @triageforge/api typecheck",
+                    "api:test":  "pnpm --filter @triageforge/api test",
+                    "build":  "pnpm -r --if-present run build",
+                    "typecheck":  "pnpm -r --if-present run typecheck",
+                    "test":  "pnpm -r --if-present run test"
+                }
 }
