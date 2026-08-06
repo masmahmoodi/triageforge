@@ -1,0 +1,7 @@
+{
+  "name": "@triageforge/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TriageForge Express API",
+  "type": "module"
+}
