@@ -115,10 +115,21 @@ export function register(input: {
   });
 }
 
-export function logout(): Promise<void> {
-  return apiRequest<void>("/auth/logout", {
-    method: "POST"
-  });
+export async function logout(): Promise<void> {
+  try {
+    await apiRequest<void>("/auth/logout", {
+      method: "POST"
+    });
+  } catch (error) {
+    if (
+      error instanceof ApiClientError &&
+      (error.status === 401 || error.status === 403)
+    ) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export function listRepositories(): Promise<{ data: Repository[] }> {

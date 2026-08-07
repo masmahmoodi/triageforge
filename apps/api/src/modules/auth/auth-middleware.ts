@@ -51,7 +51,11 @@ export function csrfMiddleware(
   _response: Response,
   next: NextFunction
 ): void {
-  if (!request.auth || !isUnsafeMethod(request.method)) {
+  if (
+    isLogoutRequest(request) ||
+    !request.auth ||
+    !isUnsafeMethod(request.method)
+  ) {
     next();
     return;
   }
@@ -68,4 +72,8 @@ export function csrfMiddleware(
 
 function isUnsafeMethod(method: string): boolean {
   return method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
+}
+
+function isLogoutRequest(request: Request): boolean {
+  return request.method === "POST" && request.path === "/api/v1/auth/logout";
 }
