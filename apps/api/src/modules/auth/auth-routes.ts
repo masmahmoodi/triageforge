@@ -75,9 +75,13 @@ export function createAuthRouter(authService: AuthService): Router {
 
   router.post(
     "/logout",
-    requireAuth,
     asyncHandler(async (request, response) => {
-      await authService.revokeSession(request.auth!.session.id);
+      const auth = await authService.resolveSession(request.header("cookie"));
+
+      if (auth) {
+        await authService.revokeSession(auth.session.id);
+      }
+
       authService.clearSessionCookie(response);
       response.status(204).send();
     })

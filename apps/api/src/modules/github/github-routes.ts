@@ -4,7 +4,6 @@ import express from "express";
 
 import type { AppConfig } from "../../config/env.js";
 import { asyncHandler } from "../../shared/async-handler.js";
-import { badRequest } from "../../shared/errors.js";
 import { requiredParam } from "../../shared/params.js";
 import { requireAuth } from "../auth/auth-middleware.js";
 import type { GitHubAppService } from "./github-app-service.js";
@@ -39,8 +38,26 @@ export function createGitHubRouter(
         typeof request.query.state === "string" ? request.query.state : "";
       const installationId = Number(request.query.installation_id);
 
-      if (!state || !Number.isInteger(installationId)) {
-        throw badRequest("GitHub callback requires state and installation_id");
+      if (!Number.isInteger(installationId)) {
+        response.redirect(
+          303,
+          githubCallbackUrl(config.webOrigin, {
+            connected: false,
+            reason: "missing_installation"
+          })
+        );
+        return;
+      }
+
+      if (!state) {
+        response.redirect(
+          303,
+          githubCallbackUrl(config.webOrigin, {
+            connected: false,
+            reason: "missing_state"
+          })
+        );
+        return;
       }
 
       await githubAppService.handleCallback({
@@ -49,7 +66,10 @@ export function createGitHubRouter(
         state
       });
 
-      response.redirect(303, `${config.webOrigin}/github/callback?connected=1`);
+      response.redirect(
+        303,
+        githubCallbackUrl(config.webOrigin, { connected: true })
+      );
     })
   );
 
@@ -77,4 +97,18 @@ export function createGitHubRouter(
   );
 
   return router;
+}
+
+function githubCallbackUrl(
+  webOrigin: string,
+  input: { connected: boolean; reason?: string }
+): string {
+  const url = new URL("/github/callback", webOrigin);
+  url.searchParams.set("connected", input.connected ? "1" : "0");
+
+  if (input.reason) {
+    url.searchParams.set("reason", input.reason);
+  }
+
+  return url.toString();
 }
