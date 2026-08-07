@@ -2,8 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   ExternalLink,
+  Loader2,
   MessageSquare,
   RefreshCcw,
+  SearchCheck,
+  Sparkles,
   Tags
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -23,7 +26,12 @@ export function IssueDetailPage(): React.ReactElement {
   const issueQuery = useQuery({
     queryKey: ["issue", id],
     queryFn: () => getIssue(id ?? ""),
-    enabled: Boolean(id)
+    enabled: Boolean(id),
+    refetchInterval: (query) => {
+      const status = query.state.data?.data.latestAnalysis?.status;
+
+      return status === "pending" ? 2500 : false;
+    }
   });
   const issue = issueQuery.data?.data;
   const analysis = issue?.latestAnalysis?.analysis ?? null;
@@ -42,6 +50,8 @@ export function IssueDetailPage(): React.ReactElement {
       await queryClient.invalidateQueries({ queryKey: ["issues"] });
     }
   });
+  const isAnalysisRunning =
+    retriageMutation.isPending || issue?.latestAnalysis?.status === "pending";
   const approvalMutation = useMutation({
     mutationFn: () =>
       approveIssue({
@@ -107,8 +117,12 @@ export function IssueDetailPage(): React.ReactElement {
           onClick={() => retriageMutation.mutate()}
           disabled={retriageMutation.isPending}
         >
-          <RefreshCcw className="h-4 w-4" aria-hidden="true" />
-          Re-triage
+          {retriageMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+          )}
+          {retriageMutation.isPending ? "Re-triaging" : "Re-triage"}
         </Button>
       </div>
 
@@ -121,7 +135,20 @@ export function IssueDetailPage(): React.ReactElement {
           </Panel>
 
           <Panel title="AI Analysis">
-            {issue.latestAnalysis?.status === "failed" ? (
+            {isAnalysisRunning ? (
+              <TriageProgress
+                title={
+                  retriageMutation.isPending
+                    ? "Re-running AI triage"
+                    : "AI triage is running"
+                }
+                description={
+                  retriageMutation.isPending
+                    ? "We are creating a fresh analysis from the latest issue text."
+                    : "GitHub delivered the issue. TriageForge is reading it, asking OpenAI for structured analysis, building an embedding, and checking for similar issues."
+                }
+              />
+            ) : issue.latestAnalysis?.status === "failed" ? (
               <ErrorPanel
                 message={
                   issue.latestAnalysis.errorMessage ??
@@ -155,14 +182,18 @@ export function IssueDetailPage(): React.ReactElement {
                 ) : null}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">
-                Analysis is pending or has not been generated yet.
-              </p>
+              <TriageProgress
+                title="Waiting for AI triage"
+                description="The issue is stored, but no analysis has been generated yet. Refresh or click Re-triage to start a new pass."
+                idle
+              />
             )}
           </Panel>
 
           <Panel title="Similar Issues">
-            {issue.latestAnalysis?.similarIssues.length ? (
+            {isAnalysisRunning ? (
+              <SimilarIssuesLoading />
+            ) : issue.latestAnalysis?.similarIssues.length ? (
               <ul className="divide-y divide-slate-200">
                 {issue.latestAnalysis.similarIssues.map((candidate) => (
                   <li key={candidate.issueId} className="py-3">
@@ -193,7 +224,11 @@ export function IssueDetailPage(): React.ReactElement {
 
         <aside className="space-y-4">
           <Panel title="Approve Actions">
-            {analysis ? (
+            {isAnalysisRunning ? (
+              <div className="rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-800">
+                Approval will unlock after AI suggestions are ready. Nothing is sent to GitHub automatically.
+              </div>
+            ) : analysis ? (
               <form
                 className="space-y-4"
                 onSubmit={(event) => {
@@ -318,6 +353,101 @@ export function IssueDetailPage(): React.ReactElement {
             )}
           </Panel>
         </aside>
+      </div>
+    </div>
+  );
+}
+
+function TriageProgress({
+  title,
+  description,
+  idle = false
+}: {
+  title: string;
+  description: string;
+  idle?: boolean;
+}): React.ReactElement {
+  const steps = [
+    {
+      icon: Sparkles,
+      label: "Structured triage",
+      text: "Category, priority, confidence, summary, missing info, and draft reply."
+    },
+    {
+      icon: SearchCheck,
+      label: "Similarity search",
+      text: "Embedding is compared with older issues in pgvector."
+    },
+    {
+      icon: Tags,
+      label: "Human approval",
+      text: "Labels and comments stay local until you approve them."
+    }
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
+        <div className="flex items-start gap-3">
+          {idle ? (
+            <Sparkles className="mt-0.5 h-5 w-5 text-blue-700" aria-hidden="true" />
+          ) : (
+            <Loader2
+              className="mt-0.5 h-5 w-5 animate-spin text-blue-700"
+              aria-hidden="true"
+            />
+          )}
+          <div>
+            <h3 className="text-sm font-semibold text-blue-950">{title}</h3>
+            <p className="mt-1 text-sm leading-6 text-blue-800">
+              {description}
+            </p>
+          </div>
+        </div>
+        {!idle ? (
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-blue-100">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-blue-600" />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        {steps.map((step) => {
+          const Icon = step.icon;
+
+          return (
+            <div
+              className="rounded-md border border-slate-200 bg-white p-3"
+              key={step.label}
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <Icon className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                {step.label}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                {step.text}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SimilarIssuesLoading(): React.ReactElement {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-slate-600">
+        Checking previous issues for possible duplicates or related reports.
+      </p>
+      <div className="space-y-2">
+        {[0, 1, 2].map((index) => (
+          <div
+            className="h-10 animate-pulse rounded-md bg-slate-100"
+            key={index}
+          />
+        ))}
       </div>
     </div>
   );

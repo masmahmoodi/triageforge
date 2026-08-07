@@ -3,6 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import {
   Filter,
   GitBranch,
+  Loader2,
   RefreshCcw,
   Search,
   Tags
@@ -63,7 +64,15 @@ export function DashboardPage(): React.ReactElement {
 
       return listIssues(params);
     },
-    getNextPageParam: (lastPage) => lastPage.pageInfo.nextCursor
+    getNextPageParam: (lastPage) => lastPage.pageInfo.nextCursor,
+    refetchInterval: (query) => {
+      const pages = query.state.data?.pages ?? [];
+      const hasPendingAnalysis = pages.some((page) =>
+        page.data.some((issue) => issue.analysisStatus === "pending")
+      );
+
+      return hasPendingAnalysis ? 3000 : false;
+    }
   });
   const setupMutation = useMutation({
     mutationFn: getGitHubSetupUrl,
@@ -254,6 +263,12 @@ function IssueRow({
                 {label}
               </span>
             ))}
+            {issue.analysisStatus === "pending" ? (
+              <span className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-100">
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                AI triage running
+              </span>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-wrap gap-2 md:justify-end">
