@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: triageforge-api
+    runtime: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm api:build
+    startCommand: pnpm db:migrate && pnpm --filter @triageforge/api start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: WEB_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_COOKIE_SAMESITE
+        value: none
+      - key: GITHUB_APP_ID
+        sync: false
+      - key: GITHUB_APP_SLUG
+        sync: false
+      - key: GITHUB_PRIVATE_KEY_BASE64
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

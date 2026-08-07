@@ -1,22 +1,39 @@
 {
-    "name":  "triageforge",
-    "version":  "0.1.0",
-    "private":  true,
-    "description":  "AI-powered GitHub issue triage platform",
-    "license":  "UNLICENSED",
-    "engines":  {
-                    "node":  "24.x",
-                    "pnpm":  "11.20.0"
-                },
-    "packageManager":  "pnpm@11.20.0",
-    "scripts":  {
-                    "workspace:list":  "pnpm --recursive list --depth -1",
-                    "api:dev":  "pnpm --filter @triageforge/api dev",
-                    "api:build":  "pnpm --filter @triageforge/api build",
-                    "api:typecheck":  "pnpm --filter @triageforge/api typecheck",
-                    "api:test":  "pnpm --filter @triageforge/api test",
-                    "build":  "pnpm -r --if-present run build",
-                    "typecheck":  "pnpm -r --if-present run typecheck",
-                    "test":  "pnpm -r --if-present run test"
-                }
+    "name": "triageforge",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "description": "AI-powered GitHub issue triage platform",
+    "license": "UNLICENSED",
+    "engines": {
+        "node": "24.x",
+        "pnpm": "11.20.0"
+    },
+    "packageManager": "pnpm@11.20.0",
+    "scripts": {
+        "workspace:list": "pnpm --recursive list --depth -1",
+        "api:dev": "pnpm --filter @triageforge/api dev",
+        "api:build": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/api build",
+        "api:typecheck": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/api typecheck",
+        "api:test": "pnpm --filter @triageforge/api test",
+        "web:dev": "pnpm --filter @triageforge/web dev",
+        "web:build": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/web build",
+        "web:typecheck": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/web typecheck",
+        "web:test": "pnpm --filter @triageforge/web test",
+        "webhook:proxy": "node scripts/webhook-proxy.mjs",
+        "db:migrate": "pnpm --filter @triageforge/api db:migrate",
+        "build": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/api build && pnpm --filter @triageforge/web build",
+        "typecheck": "pnpm --filter @triageforge/contracts build && pnpm --filter @triageforge/contracts typecheck && pnpm --filter @triageforge/api typecheck && pnpm --filter @triageforge/web typecheck",
+        "lint": "eslint .",
+        "test": "pnpm -r --if-present run test",
+        "e2e": "pnpm --filter @triageforge/web e2e"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.8.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.3",
+        "globals": "^17.9.0",
+        "typescript-eslint": "^8.66.0"
+    }
 }

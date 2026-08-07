@@ -1,14 +1,20 @@
 import { createApp } from "./app.js";
+import { loadConfig } from "./config/env.js";
 import { logger } from "./infrastructure/logging/logger.js";
+import { createServices } from "./services.js";
 
-const API_PORT = 4000;
-const app = createApp();
+const config = loadConfig();
+const services = createServices(config);
+const app = createApp({
+  config,
+  services
+});
 
-const server = app.listen(API_PORT, "127.0.0.1", () => {
+const server = app.listen(config.apiPort, config.apiHost, () => {
   logger.info(
     {
-      host: "127.0.0.1",
-      port: API_PORT
+      host: config.apiHost,
+      port: config.apiPort
     },
     "TriageForge API is listening"
   );
@@ -24,7 +30,15 @@ function shutdown(signal: string): void {
       return;
     }
 
-    logger.info("API shutdown completed");
+    services.database
+      .close()
+      .then(() => {
+        logger.info("API shutdown completed");
+      })
+      .catch((closeError: unknown) => {
+        logger.error({ error: closeError }, "Database shutdown failed");
+        process.exitCode = 1;
+      });
   });
 }
 
