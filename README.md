@@ -63,4 +63,3 @@ Never commit `.env`, private keys, webhook secrets, API keys, database passwords
 - [Database](docs/database.md)
 - [Demo Instructions](docs/demo.md)
 - [Deployment Guide](docs/deployment.md)
-- [Internship Pitch Notes](docs/internship.md)
