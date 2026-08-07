@@ -8,6 +8,8 @@
 - Human approval applies real GitHub labels and comments through the GitHub App.
 - AI triage loading states and polling are in place for slower OpenAI responses.
 - Logout now clears the frontend auth state immediately and the API accepts logout even when the CSRF token is stale.
+- Login, register, and logout are protected from stale CSRF/session races after account switching.
+- GitHub App installations are guarded so one installation cannot be silently reused by a different TriageForge account.
 
 ## Remaining Improvements
 - Add a polished public landing/demo page for recruiters.
@@ -19,6 +21,7 @@
 - Render free instances can sleep, so first API requests may be slow.
 - AI triage latency depends on OpenAI response time.
 - Users currently install one GitHub App owned by the project maintainer.
+- A GitHub App installation belongs to one TriageForge account; to move it to another account, uninstall and reinstall the app.
 
 ## External Setup Required
 - Keep `.env`, GitHub private keys, webhook secrets, OpenAI API keys, and database URLs out of Git.

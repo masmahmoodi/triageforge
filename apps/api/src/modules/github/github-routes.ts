@@ -4,6 +4,7 @@ import express from "express";
 
 import type { AppConfig } from "../../config/env.js";
 import { asyncHandler } from "../../shared/async-handler.js";
+import { HttpError } from "../../shared/errors.js";
 import { requiredParam } from "../../shared/params.js";
 import { requireAuth } from "../auth/auth-middleware.js";
 import type { GitHubAppService } from "./github-app-service.js";
@@ -60,11 +61,26 @@ export function createGitHubRouter(
         return;
       }
 
-      await githubAppService.handleCallback({
-        userId: request.auth!.user.id,
-        installationId,
-        state
-      });
+      try {
+        await githubAppService.handleCallback({
+          userId: request.auth!.user.id,
+          installationId,
+          state
+        });
+      } catch (error) {
+        if (error instanceof HttpError && error.statusCode === 403) {
+          response.redirect(
+            303,
+            githubCallbackUrl(config.webOrigin, {
+              connected: false,
+              reason: "installation_connected_elsewhere"
+            })
+          );
+          return;
+        }
+
+        throw error;
+      }
 
       response.redirect(
         303,

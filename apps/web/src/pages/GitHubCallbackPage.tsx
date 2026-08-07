@@ -57,5 +57,9 @@ function callbackFailureMessage(reason: string | null): string {
     return "GitHub did not send an installation id. Please try connecting the repository again from TriageForge.";
   }
 
+  if (reason === "installation_connected_elsewhere") {
+    return "This GitHub App installation is already linked to another TriageForge account. Log in with that account, or uninstall and reinstall the GitHub App before connecting it here.";
+  }
+
   return "The GitHub installation could not be linked. Please try connecting the repository again from TriageForge.";
 }

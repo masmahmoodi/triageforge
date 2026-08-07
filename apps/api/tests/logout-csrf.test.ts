@@ -12,8 +12,12 @@ import {
 
 import { csrfMiddleware } from "../src/modules/auth/auth-middleware.js";
 
-describe("csrfMiddleware logout handling", () => {
-  it("allows logout without a CSRF token so stale sessions can still be cleared", () => {
+describe("csrfMiddleware auth session handling", () => {
+  it.each([
+    "/api/v1/auth/login",
+    "/api/v1/auth/logout",
+    "/api/v1/auth/register"
+  ])("allows %s without a CSRF token", (path) => {
     const request = {
       auth: {
         session: {
@@ -22,7 +26,7 @@ describe("csrfMiddleware logout handling", () => {
       },
       header: vi.fn(() => undefined),
       method: "POST",
-      path: "/api/v1/auth/logout"
+      path
     } as unknown as Request;
     const response = {} as Response;
     const next = vi.fn() as NextFunction;

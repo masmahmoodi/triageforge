@@ -52,7 +52,7 @@ export function csrfMiddleware(
   next: NextFunction
 ): void {
   if (
-    isLogoutRequest(request) ||
+    isAuthSessionEndpoint(request) ||
     !request.auth ||
     !isUnsafeMethod(request.method)
   ) {
@@ -74,6 +74,13 @@ function isUnsafeMethod(method: string): boolean {
   return method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
 }
 
-function isLogoutRequest(request: Request): boolean {
-  return request.method === "POST" && request.path === "/api/v1/auth/logout";
+function isAuthSessionEndpoint(request: Request): boolean {
+  return (
+    request.method === "POST" &&
+    [
+      "/api/v1/auth/login",
+      "/api/v1/auth/logout",
+      "/api/v1/auth/register"
+    ].includes(request.path)
+  );
 }

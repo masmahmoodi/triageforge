@@ -66,6 +66,11 @@ export class GitHubAppService {
       }
     });
 
+    await this.assertInstallationCanBeConnected(
+      input.userId,
+      input.installationId
+    );
+
     const installation = await this.githubClient.getInstallation(
       input.installationId
     );
@@ -166,5 +171,32 @@ export class GitHubAppService {
       installationDatabaseId,
       ...repository
     });
+  }
+
+  private async assertInstallationCanBeConnected(
+    userId: string,
+    installationId: number
+  ): Promise<void> {
+    const result = await this.database.query<{
+      user_id: string | null;
+      account_login: string;
+    }>(
+      `
+        SELECT user_id, account_login
+        FROM github_installations
+        WHERE installation_id = $1
+      `,
+      [installationId]
+    );
+    const existingInstallation = result.rows[0];
+
+    if (
+      existingInstallation?.user_id &&
+      existingInstallation.user_id !== userId
+    ) {
+      throw forbidden(
+        `This GitHub installation is already connected to another TriageForge account. Log in with the original TriageForge account, or uninstall and reinstall the GitHub App for ${existingInstallation.account_login}.`
+      );
+    }
   }
 }

@@ -48,7 +48,12 @@ export async function apiRequest<T>(
     headers["Content-Type"] = "application/json";
   }
 
-  if (csrfToken && method !== "GET" && method !== "HEAD") {
+  if (
+    csrfToken &&
+    method !== "GET" &&
+    method !== "HEAD" &&
+    shouldAttachCsrfToken(path)
+  ) {
     headers["X-CSRF-Token"] = csrfToken;
   }
 
@@ -98,6 +103,8 @@ export function login(input: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
+  setCsrfToken(null);
+
   return apiRequest<AuthResponse>("/auth/login", {
     method: "POST",
     body: input
@@ -109,6 +116,8 @@ export function register(input: {
   name?: string | undefined;
   password: string;
 }): Promise<AuthResponse> {
+  setCsrfToken(null);
+
   return apiRequest<AuthResponse>("/auth/register", {
     method: "POST",
     body: input
@@ -168,4 +177,8 @@ export function approveIssue(input: {
       ...(input.comment?.trim() ? { comment: input.comment } : {})
     }
   });
+}
+
+function shouldAttachCsrfToken(path: string): boolean {
+  return !["/auth/login", "/auth/logout", "/auth/register"].includes(path);
 }

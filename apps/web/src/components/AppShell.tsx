@@ -13,9 +13,9 @@ export function AppShell(): React.ReactElement {
   const logoutMutation = useMutation({
     mutationFn: logout,
     onMutate: async () => {
+      await queryClient.cancelQueries();
       setCsrfToken(null);
       queryClient.setQueryData(["auth", "me"], null);
-      await queryClient.cancelQueries();
       queryClient.removeQueries({
         predicate: (query) => query.queryKey[0] !== "auth"
       });

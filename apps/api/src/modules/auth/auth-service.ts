@@ -200,21 +200,31 @@ export class AuthService {
   }
 
   public clearSessionCookie(response: Response): void {
+    const baseCookie = {
+      name: this.config.sessionCookieName,
+      value: "",
+      httpOnly: true,
+      secure: this.config.nodeEnv === "production",
+      sameSite: this.config.sessionCookieSameSite,
+      path: "/",
+      expires: new Date(0),
+      maxAge: 0
+    };
+    const cookies = [
+      stringifySetCookie(baseCookie),
+      ...(this.config.sessionCookieDomain
+        ? [
+            stringifySetCookie({
+              ...baseCookie,
+              domain: this.config.sessionCookieDomain
+            })
+          ]
+        : [])
+    ];
+
     response.setHeader(
       "Set-Cookie",
-      stringifySetCookie({
-        name: this.config.sessionCookieName,
-        value: "",
-        httpOnly: true,
-        secure: this.config.nodeEnv === "production",
-        sameSite: this.config.sessionCookieSameSite,
-        ...(this.config.sessionCookieDomain
-          ? { domain: this.config.sessionCookieDomain }
-          : {}),
-        path: "/",
-        expires: new Date(0),
-        maxAge: 0
-      })
+      Array.from(new Set(cookies))
     );
   }
 
