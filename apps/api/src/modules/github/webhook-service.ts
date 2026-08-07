@@ -106,7 +106,9 @@ export class WebhookService {
       const issuesPayload = githubIssuesWebhookPayloadSchema.parse(payload);
       const issueId = await this.persistIssuesEvent(issuesPayload);
       await this.markDelivery(input.deliveryId, "processed");
-      this.triageQueue.enqueue(issueId);
+      if (shouldQueueTriageForIssueAction(issuesPayload.action)) {
+        this.triageQueue.enqueue(issueId);
+      }
 
       return {
         status: "processed",
@@ -204,6 +206,10 @@ export class WebhookService {
       [deliveryId, status, error ? getErrorMessage(error) : null]
     );
   }
+}
+
+export function shouldQueueTriageForIssueAction(action: string): boolean {
+  return new Set(["opened", "edited", "reopened", "transferred"]).has(action);
 }
 
 function parsePayload(rawBody: Buffer): unknown {
