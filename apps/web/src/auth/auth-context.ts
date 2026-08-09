@@ -1,4 +1,4 @@
-import type { AuthUser } from "@triageforge/contracts";
+import type { AuthResponse, AuthUser } from "@triageforge/contracts";
 import {
   createContext,
   useContext
@@ -7,6 +7,8 @@ import {
 export interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  establishSession: (response: AuthResponse) => void;
+  clearSession: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

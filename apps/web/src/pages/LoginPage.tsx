@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -8,16 +8,15 @@ import {
   loginRequestSchema,
   type AuthResponse
 } from "@triageforge/contracts";
-import { login, setCsrfToken } from "../api/client";
+import { login } from "../api/client";
 import { useAuth } from "../auth/auth-context";
 import { Button } from "../components/Button";
 
 type LoginValues = Parameters<typeof login>[0];
 
 export function LoginPage(): React.ReactElement {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, establishSession } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginRequestSchema),
     defaultValues: {
@@ -28,9 +27,8 @@ export function LoginPage(): React.ReactElement {
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (response: AuthResponse) => {
-      setCsrfToken(response.data.csrfToken);
-      queryClient.setQueryData(["auth", "me"], response);
-      void navigate("/");
+      establishSession(response);
+      void navigate("/", { replace: true });
     }
   });
 

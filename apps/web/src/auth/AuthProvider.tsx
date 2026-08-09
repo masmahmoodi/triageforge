@@ -1,6 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { AuthResponse } from "@triageforge/contracts";
 import {
+  useCallback,
   useEffect,
+  useState,
   type PropsWithChildren
 } from "react";
 
@@ -9,6 +12,9 @@ import { AuthContext } from "./auth-context";
 
 export function AuthProvider({ children }: PropsWithChildren): React.ReactElement {
   const queryClient = useQueryClient();
+  const [sessionOverride, setSessionOverride] = useState<
+    AuthResponse["data"] | null | undefined
+  >(undefined);
   const meQuery = useQuery({
     queryKey: ["auth", "me"],
     queryFn: getMe,
@@ -16,7 +22,21 @@ export function AuthProvider({ children }: PropsWithChildren): React.ReactElemen
       !(error instanceof ApiClientError && error.status === 401) &&
       failureCount < 1
   });
-  const auth = meQuery.data?.data ?? null;
+  const auth = sessionOverride === undefined
+    ? meQuery.data?.data ?? null
+    : sessionOverride;
+
+  const establishSession = useCallback((response: AuthResponse) => {
+    setSessionOverride(response.data);
+    setCsrfToken(response.data.csrfToken);
+    queryClient.setQueryData(["auth", "me"], response);
+  }, [queryClient]);
+
+  const clearSession = useCallback(() => {
+    setSessionOverride(null);
+    setCsrfToken(null);
+    queryClient.setQueryData(["auth", "me"], null);
+  }, [queryClient]);
 
   useEffect(() => {
     setCsrfToken(auth?.csrfToken ?? null);
@@ -24,16 +44,17 @@ export function AuthProvider({ children }: PropsWithChildren): React.ReactElemen
 
   useEffect(() => {
     if (meQuery.error instanceof ApiClientError && meQuery.error.status === 401) {
-      setCsrfToken(null);
-      queryClient.setQueryData(["auth", "me"], null);
+      clearSession();
     }
-  }, [meQuery.error, queryClient]);
+  }, [clearSession, meQuery.error]);
 
   return (
     <AuthContext.Provider
       value={{
         user: auth?.user ?? null,
-        isLoading: meQuery.isLoading
+        isLoading: sessionOverride === undefined && meQuery.isLoading,
+        establishSession,
+        clearSession
       }}
     >
       {children}

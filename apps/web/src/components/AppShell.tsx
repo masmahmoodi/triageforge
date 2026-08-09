@@ -2,27 +2,23 @@ import { GitBranch, LogOut, ShieldCheck } from "lucide-react";
 import { Link, Outlet, Navigate, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { logout, setCsrfToken } from "../api/client";
+import { logout } from "../api/client";
 import { useAuth } from "../auth/auth-context";
 import { Button } from "./Button";
 
 export function AppShell(): React.ReactElement {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, clearSession } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onMutate: async () => {
-      await queryClient.cancelQueries();
-      setCsrfToken(null);
-      queryClient.removeQueries();
-      queryClient.setQueryData(["auth", "me"], null);
+    onSuccess: () => {
+      void queryClient.cancelQueries();
+      clearSession();
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== "auth"
+      });
       void navigate("/login", { replace: true });
-    },
-    onSettled: () => {
-      setCsrfToken(null);
-      queryClient.removeQueries();
-      queryClient.setQueryData(["auth", "me"], null);
     }
   });
 

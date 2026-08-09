@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
@@ -7,7 +7,7 @@ import {
   registerRequestSchema,
   type AuthResponse
 } from "@triageforge/contracts";
-import { register, setCsrfToken } from "../api/client";
+import { register } from "../api/client";
 import { useAuth } from "../auth/auth-context";
 import { Button } from "../components/Button";
 import { AuthFrame, Field } from "./LoginPage";
@@ -15,9 +15,8 @@ import { AuthFrame, Field } from "./LoginPage";
 type RegisterValues = Parameters<typeof register>[0];
 
 export function RegisterPage(): React.ReactElement {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, establishSession } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerRequestSchema),
     defaultValues: {
@@ -29,9 +28,8 @@ export function RegisterPage(): React.ReactElement {
   const mutation = useMutation({
     mutationFn: register,
     onSuccess: (response: AuthResponse) => {
-      setCsrfToken(response.data.csrfToken);
-      queryClient.setQueryData(["auth", "me"], response);
-      void navigate("/");
+      establishSession(response);
+      void navigate("/", { replace: true });
     }
   });
 
