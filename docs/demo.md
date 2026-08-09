@@ -74,3 +74,22 @@ Open `http://127.0.0.1:5173`, register, connect a repository, then create or edi
 ## 5. Review And Apply
 
 Open the issue in TriageForge, review suggested labels, similar issues, priority, and draft response. Select the final labels/comment and click Apply to GitHub.
+
+## Portfolio Video
+
+Keep the walkthrough between 90 seconds and 2 minutes:
+
+1. State the problem in one sentence: maintainers spend time sorting repetitive and incomplete issues.
+2. Show a GitHub issue being created in a test repository.
+3. Show the issue arrive in TriageForge and briefly point out the loading state.
+4. Show the structured analysis, priority, labels, missing information, draft comment, and similar-issue section.
+5. Approve the actions and show the real labels/comment appear on GitHub.
+6. End on the repository README and mention signed webhooks, idempotency, ownership checks, PostgreSQL/pgvector, and human approval.
+
+Recommended README screenshots:
+
+- The dashboard with multiple analyzed issues and filters visible.
+- A detailed issue analysis with suggested actions and similar issues.
+- The original GitHub issue after approved labels and a bot comment were applied.
+
+Do not use an error screen as the main project screenshot. The installation ownership warning is useful as a short security example in the video or documentation, but the first screenshots should demonstrate the successful workflow. Blur emails, repository names, tokens, installation ids, and other private data before sharing.

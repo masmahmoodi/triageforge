@@ -8,7 +8,7 @@ export function GitHubCallbackPage(): React.ReactElement {
 
   if (!connected) {
     return (
-      <div className="mx-auto max-w-xl rounded-lg border border-amber-200 bg-white p-6 text-center shadow-sm">
+      <div className="surface mx-auto max-w-xl rounded-lg border-amber-200 p-6 text-center">
         <AlertCircle
           className="mx-auto h-10 w-10 text-amber-600"
           aria-hidden="true"
@@ -20,7 +20,7 @@ export function GitHubCallbackPage(): React.ReactElement {
           {callbackFailureMessage(reason)}
         </p>
         <Link
-          className="focus-ring mt-5 inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-700"
+          className="focus-ring mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-teal-600 px-3 text-sm font-medium text-white shadow-sm shadow-teal-900/10 hover:bg-teal-700"
           to="/"
         >
           Back to dashboard
@@ -30,7 +30,7 @@ export function GitHubCallbackPage(): React.ReactElement {
   }
 
   return (
-    <div className="mx-auto max-w-xl rounded-lg border border-slate-200 bg-white p-6 text-center shadow-sm">
+    <div className="surface mx-auto max-w-xl rounded-lg p-6 text-center">
       <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" aria-hidden="true" />
       <h1 className="mt-4 text-xl font-semibold text-slate-950">
         Repository connection updated
@@ -39,7 +39,7 @@ export function GitHubCallbackPage(): React.ReactElement {
         New GitHub issues will appear after webhooks arrive. Existing repositories are ready for review.
       </p>
       <Link
-        className="focus-ring mt-5 inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-700"
+        className="focus-ring mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-teal-600 px-3 text-sm font-medium text-white shadow-sm shadow-teal-900/10 hover:bg-teal-700"
         to="/"
       >
         Back to dashboard
@@ -58,7 +58,7 @@ function callbackFailureMessage(reason: string | null): string {
   }
 
   if (reason === "installation_connected_elsewhere") {
-    return "This GitHub App installation is already linked to another TriageForge account. Log in with that account, or uninstall and reinstall the GitHub App before connecting it here.";
+    return "This GitHub App installation is already linked to another TriageForge account. Your GitHub login and TriageForge login are separate, and no repositories were transferred. Log in with the original TriageForge account, or uninstall and reinstall the GitHub App before connecting it here.";
   }
 
   return "The GitHub installation could not be linked. Please try connecting the repository again from TriageForge.";

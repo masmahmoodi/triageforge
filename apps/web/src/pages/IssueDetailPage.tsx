@@ -74,7 +74,17 @@ export function IssueDetailPage(): React.ReactElement {
   }, [analysis]);
 
   if (issueQuery.isLoading) {
-    return <p className="py-10 text-center text-sm text-slate-500">Loading issue</p>;
+    return (
+      <div className="surface mx-auto max-w-2xl rounded-lg p-6 text-center">
+        <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-teal-50 text-teal-700 ring-1 ring-teal-100">
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+        </div>
+        <p className="text-sm font-medium text-slate-900">Loading issue</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Fetching the stored GitHub issue and latest AI analysis.
+        </p>
+      </div>
+    );
   }
 
   if (issueQuery.error || !issue) {
@@ -86,10 +96,10 @@ export function IssueDetailPage(): React.ReactElement {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 md:flex-row md:items-start md:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <Link className="text-sm text-blue-700 hover:text-blue-800" to="/">
+          <Link className="text-sm font-medium text-teal-700 hover:text-teal-800" to="/">
             Back to issues
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -99,7 +109,7 @@ export function IssueDetailPage(): React.ReactElement {
             <Pill value={issue.state} tone={issue.state === "open" ? "green" : "slate"} />
             <Pill value={issue.priority ?? "untriaged"} tone="blue" />
           </div>
-          <h1 className="mt-3 text-2xl font-semibold text-slate-950">
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
             {issue.title}
           </h1>
           <a
@@ -198,7 +208,7 @@ export function IssueDetailPage(): React.ReactElement {
                 {issue.latestAnalysis.similarIssues.map((candidate) => (
                   <li key={candidate.issueId} className="py-3">
                     <a
-                      className="font-medium text-slate-950 hover:text-blue-700"
+                      className="font-medium text-slate-950 hover:text-teal-700"
                       href={candidate.htmlUrl}
                       rel="noreferrer"
                       target="_blank"
@@ -206,7 +216,7 @@ export function IssueDetailPage(): React.ReactElement {
                       #{candidate.issueNumber} {candidate.title}
                     </a>
                     <p className="mt-1 text-xs text-slate-500">
-                      {Math.round(candidate.similarity * 100)}% similar · {candidate.state}
+                      {Math.round(candidate.similarity * 100)}% similar - {candidate.state}
                     </p>
                     {candidate.summary ? (
                       <p className="mt-1 text-sm text-slate-600">
@@ -225,8 +235,8 @@ export function IssueDetailPage(): React.ReactElement {
         <aside className="space-y-4">
           <Panel title="Approve Actions">
             {isAnalysisRunning ? (
-              <div className="rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-800">
-                Approval will unlock after AI suggestions are ready. Nothing is sent to GitHub automatically.
+              <div className="rounded-lg border border-teal-100 bg-teal-50 p-3 text-sm text-teal-800">
+                Approval unlocks after AI suggestions are ready. Nothing is sent to GitHub automatically.
               </div>
             ) : analysis ? (
               <form
@@ -244,7 +254,7 @@ export function IssueDetailPage(): React.ReactElement {
                   <div className="space-y-2">
                     {analysis.suggestedLabels.map((label) => (
                       <label
-                        className="flex items-start gap-2 rounded-md border border-slate-200 p-2 text-sm"
+                        className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm"
                         key={label.name}
                       >
                         <input
@@ -285,7 +295,7 @@ export function IssueDetailPage(): React.ReactElement {
                     Comment
                   </span>
                   <textarea
-                    className="focus-ring min-h-44 w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800"
+                    className="focus-ring min-h-44 w-full resize-y rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm"
                     disabled={Boolean(appliedApproval) || !includeComment}
                     value={comment}
                     onChange={(event) => setComment(event.target.value)}
@@ -387,26 +397,26 @@ function TriageProgress({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
+      <div className="rounded-lg border border-teal-100 bg-teal-50 p-4">
         <div className="flex items-start gap-3">
           {idle ? (
-            <Sparkles className="mt-0.5 h-5 w-5 text-blue-700" aria-hidden="true" />
+            <Sparkles className="mt-0.5 h-5 w-5 text-teal-700" aria-hidden="true" />
           ) : (
             <Loader2
-              className="mt-0.5 h-5 w-5 animate-spin text-blue-700"
+              className="mt-0.5 h-5 w-5 animate-spin text-teal-700"
               aria-hidden="true"
             />
           )}
           <div>
-            <h3 className="text-sm font-semibold text-blue-950">{title}</h3>
-            <p className="mt-1 text-sm leading-6 text-blue-800">
+            <h3 className="text-sm font-semibold text-teal-950">{title}</h3>
+            <p className="mt-1 text-sm leading-6 text-teal-800">
               {description}
             </p>
           </div>
         </div>
         {!idle ? (
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-blue-100">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-blue-600" />
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-teal-100">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-teal-600" />
           </div>
         ) : null}
       </div>
@@ -417,11 +427,11 @@ function TriageProgress({
 
           return (
             <div
-              className="rounded-md border border-slate-200 bg-white p-3"
+              className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
               key={step.label}
             >
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <Icon className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                <Icon className="h-4 w-4 text-teal-700" aria-hidden="true" />
                 {step.label}
               </div>
               <p className="mt-2 text-xs leading-5 text-slate-500">
@@ -444,7 +454,7 @@ function SimilarIssuesLoading(): React.ReactElement {
       <div className="space-y-2">
         {[0, 1, 2].map((index) => (
           <div
-            className="h-10 animate-pulse rounded-md bg-slate-100"
+            className="skeleton h-10 rounded-lg"
             key={index}
           />
         ))}
@@ -461,7 +471,7 @@ function Panel({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4">
+    <section className="surface rounded-lg p-4">
       <h2 className="mb-3 text-sm font-semibold text-slate-900">{title}</h2>
       {children}
     </section>
@@ -470,8 +480,8 @@ function Panel({
 
 function Metric({ label, value }: { label: string; value: string }): React.ReactElement {
   return (
-    <div className="rounded-md border border-slate-200 p-3">
-      <div className="text-xs uppercase text-slate-500">{label}</div>
+    <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
+      <div className="text-xs font-medium uppercase text-slate-500">{label}</div>
       <div className="mt-1 text-sm font-semibold text-slate-950">{value}</div>
     </div>
   );

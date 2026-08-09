@@ -25,27 +25,7 @@ describe("logout navigation", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders the login page immediately after logout succeeds", async () => {
-    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === "POST") {
-        return Promise.resolve(new Response(null, { status: 204 }));
-      }
-
-      return Promise.resolve(new Response(JSON.stringify({
-        data: {
-          user: {
-            id: "93fdf904-6e30-4a85-8a53-cf165d852b2a",
-            email: "user@example.com",
-            name: "Test User",
-            createdAt: "2026-08-08T00:00:00.000Z"
-          },
-          csrfToken: "csrf-token"
-        }
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      }));
-    });
+  function renderLogoutScenario(fetchMock: ReturnType<typeof vi.fn>) {
     vi.stubGlobal("fetch", fetchMock);
 
     const queryClient = new QueryClient({
@@ -71,9 +51,75 @@ describe("logout navigation", () => {
       </QueryClientProvider>
     );
 
+    return router;
+  }
+
+  it("renders the login page immediately after logout succeeds", async () => {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }
+
+      return Promise.resolve(new Response(JSON.stringify({
+        data: {
+          user: {
+            id: "93fdf904-6e30-4a85-8a53-cf165d852b2a",
+            email: "user@example.com",
+            name: "Test User",
+            createdAt: "2026-08-08T00:00:00.000Z"
+          },
+          csrfToken: "csrf-token"
+        }
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      }));
+    });
+    const router = renderLogoutScenario(fetchMock);
+
     expect(await screen.findByText("user@example.com")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByTitle("Log out"));
+    await userEvent.click(screen.getByLabelText("Log out"));
+
+    expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/login");
+    expect(screen.queryByText("Dashboard content")).not.toBeInTheDocument();
+  });
+
+  it("renders the login page immediately when logout is already unauthorized", async () => {
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        return Promise.resolve(new Response(JSON.stringify({
+          error: {
+            code: "forbidden",
+            message: "A valid CSRF token is required"
+          }
+        }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" }
+        }));
+      }
+
+      return Promise.resolve(new Response(JSON.stringify({
+        data: {
+          user: {
+            id: "93fdf904-6e30-4a85-8a53-cf165d852b2a",
+            email: "user@example.com",
+            name: "Test User",
+            createdAt: "2026-08-08T00:00:00.000Z"
+          },
+          csrfToken: "csrf-token"
+        }
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      }));
+    });
+    const router = renderLogoutScenario(fetchMock);
+
+    expect(await screen.findByText("user@example.com")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText("Log out"));
 
     expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
     expect(router.state.location.pathname).toBe("/login");

@@ -79,7 +79,7 @@ export function RegisterPage(): React.ReactElement {
       </form>
       <p className="mt-4 text-center text-sm text-slate-600">
         Already registered?{" "}
-        <Link className="font-medium text-blue-700 hover:text-blue-800" to="/login">
+        <Link className="font-medium text-teal-700 hover:text-teal-800" to="/login">
           Log in
         </Link>
       </p>

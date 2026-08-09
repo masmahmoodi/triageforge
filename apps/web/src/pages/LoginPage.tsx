@@ -67,7 +67,7 @@ export function LoginPage(): React.ReactElement {
       </form>
       <p className="mt-4 text-center text-sm text-slate-600">
         New here?{" "}
-        <Link className="font-medium text-blue-700 hover:text-blue-800" to="/register">
+        <Link className="font-medium text-teal-700 hover:text-teal-800" to="/register">
           Create an account
         </Link>
       </p>
@@ -83,13 +83,15 @@ export function AuthFrame({
   title: string;
 }): React.ReactElement {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
-      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="auth-bg soft-grid flex min-h-screen items-center justify-center px-4 py-10">
+      <div className="surface w-full max-w-md rounded-lg p-6">
         <div className="mb-6 flex items-center gap-3">
-          <ShieldCheck className="h-7 w-7 text-emerald-600" aria-hidden="true" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 ring-1 ring-teal-100">
+            <ShieldCheck className="h-6 w-6 text-teal-700" aria-hidden="true" />
+          </span>
           <div>
             <h1 className="text-xl font-semibold text-slate-950">{title}</h1>
-            <p className="text-sm text-slate-600">TriageForge</p>
+            <p className="text-sm text-slate-600">Secure GitHub issue triage</p>
           </div>
         </div>
         {children}
@@ -113,7 +115,7 @@ export function Field({
     <label className="block">
       <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
       <input
-        className={`focus-ring h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 ${className}`}
+        className={`focus-ring h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 hover:border-slate-300 ${className}`}
         {...props}
       />
       {error ? <span className="mt-1 block text-xs text-rose-600">{error}</span> : null}
