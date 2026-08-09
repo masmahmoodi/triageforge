@@ -2,7 +2,7 @@
 
 TriageForge is an AI-powered GitHub Issue Intelligence Platform. It connects to real repositories through a GitHub App, verifies issue webhooks, stores issues in PostgreSQL, generates structured AI triage, finds similar issues with pgvector, and applies labels/comments only after human approval.
 
-[Live application](https://triageforge-web.vercel.app) | [Demo Video]([YOUR_VIDEO_LINK_HERE](https://youtu.be/6pzyX2iikdo))  | [Install the GitHub App](https://github.com/apps/triageforge) | [API health](https://triageforge-api.onrender.com/api/v1/health)
+[Live application](https://triageforge-web.vercel.app) | [Demo Video](https://youtu.be/6pzyX2iikdo) | [Install the GitHub App](https://github.com/apps/triageforge) | [API health](https://triageforge-api.onrender.com/api/v1/health)
 
 > The hosted API uses a free Render instance and may need about a minute to wake up after inactivity.
 
