@@ -57,9 +57,13 @@ export function createApp(options: CreateAppOptions = {}): express.Express {
   app.get(
     "/api/v1/health",
     (request: Request, response: Response): void => {
+      const revision = process.env.RENDER_GIT_COMMIT?.slice(0, 12) ?? "local";
+
+      response.setHeader("X-TriageForge-Revision", revision);
       response.status(200).json({
         data: {
-          status: "ok"
+          status: "ok",
+          revision
         },
         meta: {
           requestId: request.requestId

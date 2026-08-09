@@ -17,6 +17,7 @@ describe("GET /api/v1/health", () => {
 
     expect(response.body).toEqual({
       data: {
+        revision: "local",
         status: "ok"
       },
       meta: {
@@ -29,6 +30,7 @@ describe("GET /api/v1/health", () => {
     );
 
     expect(response.headers["x-powered-by"]).toBeUndefined();
+    expect(response.headers["x-triageforge-revision"]).toBe("local");
     expect(
       response.headers["content-security-policy"]
     ).toBeDefined();
