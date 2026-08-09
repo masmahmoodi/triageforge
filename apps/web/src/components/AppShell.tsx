@@ -15,14 +15,13 @@ export function AppShell(): React.ReactElement {
     onMutate: async () => {
       await queryClient.cancelQueries();
       setCsrfToken(null);
+      queryClient.removeQueries();
       queryClient.setQueryData(["auth", "me"], null);
-      queryClient.removeQueries({
-        predicate: (query) => query.queryKey[0] !== "auth"
-      });
       void navigate("/login", { replace: true });
     },
     onSettled: () => {
       setCsrfToken(null);
+      queryClient.removeQueries();
       queryClient.setQueryData(["auth", "me"], null);
     }
   });

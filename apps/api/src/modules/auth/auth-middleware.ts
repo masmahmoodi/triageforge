@@ -75,12 +75,27 @@ function isUnsafeMethod(method: string): boolean {
 }
 
 function isAuthSessionEndpoint(request: Request): boolean {
-  return (
-    request.method === "POST" &&
+  if (request.method !== "POST") {
+    return false;
+  }
+
+  const paths = [
+    request.path,
+    request.originalUrl?.split("?")[0],
+    request.url?.split("?")[0]
+  ].filter((path): path is string => Boolean(path));
+
+  return paths.some((path) =>
     [
       "/api/v1/auth/login",
       "/api/v1/auth/logout",
-      "/api/v1/auth/register"
-    ].includes(request.path)
+      "/api/v1/auth/register",
+      "/auth/login",
+      "/auth/logout",
+      "/auth/register",
+      "/login",
+      "/logout",
+      "/register"
+    ].includes(path)
   );
 }

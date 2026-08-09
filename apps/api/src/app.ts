@@ -98,8 +98,8 @@ export function createApp(options: CreateAppOptions = {}): express.Express {
     })
   );
   app.use(sessionMiddleware(services.authService));
-  app.use(csrfMiddleware);
   app.use("/api/v1/auth", createAuthRouter(services.authService));
+  app.use(csrfMiddleware);
   app.use(
     "/api/v1/github",
     createGitHubRouter(services.githubAppService, config)

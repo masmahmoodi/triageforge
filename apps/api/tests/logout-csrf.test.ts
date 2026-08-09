@@ -36,6 +36,31 @@ describe("csrfMiddleware auth session handling", () => {
     expect(next).toHaveBeenCalledWith();
   });
 
+  it.each([
+    ["/login", "/api/v1/auth/login"],
+    ["/logout", "/api/v1/auth/logout"],
+    ["/register", "/api/v1/auth/register"]
+  ])("allows mounted auth route %s without a CSRF token", (path, originalUrl) => {
+    const request = {
+      auth: {
+        session: {
+          csrfToken: "known-token"
+        }
+      },
+      header: vi.fn(() => undefined),
+      method: "POST",
+      originalUrl,
+      path,
+      url: path
+    } as unknown as Request;
+    const response = {} as Response;
+    const next = vi.fn() as NextFunction;
+
+    csrfMiddleware(request, response, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
   it("still rejects other unsafe requests without a CSRF token", () => {
     const request = {
       auth: {

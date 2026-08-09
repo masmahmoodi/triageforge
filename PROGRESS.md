@@ -7,8 +7,8 @@
 - Real GitHub issue webhooks are verified, stored, triaged with OpenAI, embedded, and shown in the dashboard.
 - Human approval applies real GitHub labels and comments through the GitHub App.
 - AI triage loading states and polling are in place for slower OpenAI responses.
-- Logout now clears the frontend auth state immediately and the API accepts logout even when the CSRF token is stale.
-- Login, register, and logout are protected from stale CSRF/session races after account switching.
+- Login, register, and logout are mounted before CSRF protection so stale CSRF cookies cannot trap users in a broken session.
+- Logout now clears all frontend query cache immediately so stale account data is not reused after switching users.
 - GitHub App installations are guarded so one installation cannot be silently reused by a different TriageForge account.
 
 ## Remaining Improvements
