@@ -13,7 +13,7 @@
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.84.0",
     "react-router-dom": "^7.18.2",
-    "zod": "^4.4.3"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
